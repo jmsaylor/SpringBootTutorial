@@ -14,7 +14,7 @@ public class DogService {
     private final DogDao dogDao;
 
     @Autowired
-    public DogService(@Qualifier("dogDao") DogDao dogDao) {
+    public DogService(@Qualifier("mongoDog") DogDao dogDao) {
         this.dogDao = dogDao;
     }
 
