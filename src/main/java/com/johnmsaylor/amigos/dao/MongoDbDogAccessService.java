@@ -1,33 +1,25 @@
 package com.johnmsaylor.amigos.dao;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.johnmsaylor.amigos.model.Dog;
 import com.johnmsaylor.amigos.vault.Vault;
 import com.mongodb.ConnectionString;
-import com.mongodb.DBObject;
 import com.mongodb.MongoClientSettings;
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoClients;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.*;
+import com.mongodb.client.model.Filters;
 import org.bson.Document;
-import org.bson.conversions.Bson;
 import org.springframework.stereotype.Repository;
 
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 @Repository("mongoDog")
 public class MongoDbDogAccessService implements DogDao {
     ConnectionString connectionString = new ConnectionString(Vault.getMongoConnectionString());
     MongoClientSettings settings = MongoClientSettings.builder().applyConnectionString(connectionString).build();
     MongoClient mongoClient = MongoClients.create(settings);
+
     MongoDatabase mongoDatabase = mongoClient.getDatabase("Spring");
     MongoCollection<Document> mongoCollection = mongoDatabase.getCollection("Dogs");
 
@@ -54,7 +46,9 @@ public class MongoDbDogAccessService implements DogDao {
 
     @Override
     public Optional<Dog> getSpecificDog(String name) {
-        return Optional.empty();
+        Document dogMaybe = mongoCollection.find(Filters.eq("name", name)).first();
+
+        return Optional.of(new Dog(dogMaybe.getString("name"), dogMaybe.getInteger("age"), dogMaybe.getString("favoriteThings"))).orElse(null);
     }
 
     @Override
